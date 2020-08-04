@@ -12,7 +12,6 @@ package main
 import (
 	"mloab/filechain"
 
-	"github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/cmd/tendermint/commands"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -32,20 +31,22 @@ func main() {
 	root.AddCommand(commands.ShowNodeIDCmd)
 	root.AddCommand(commands.TestnetFilesCmd)
 
-	app := filechain.NewApp()
-	nodeProvider := makeNodeProvider(app)
+	nodeProvider := makeNodeProvider()
 	root.AddCommand(commands.NewRunNodeCmd(nodeProvider))
 
 	exec := cli.PrepareBaseCmd(root, "wiz", ".")
 	exec.Execute()
 }
 
-func makeNodeProvider(app types.Application) node.Provider {
+func makeNodeProvider() node.Provider {
 	return func(config *cfg.Config, logger log.Logger) (*node.Node, error) {
 		nodeKey, err := p2p.LoadOrGenNodeKey(config.NodeKeyFile())
 		if err != nil {
 			return nil, err
 		}
+
+		// instance app
+		app := filechain.NewApp(config.RootDir)
 
 		// read private validator
 		pv := privval.LoadFilePV(

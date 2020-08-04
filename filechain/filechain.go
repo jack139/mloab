@@ -12,10 +12,10 @@ import (
 	"path"
 
 	"github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/cli"
+	//"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/version"
 	dbm "github.com/tendermint/tm-db"
-	"github.com/spf13/viper"
+	//"github.com/spf13/viper"
 )
 
 
@@ -89,12 +89,10 @@ type TxData struct {
 	Created time.Time // 交易数据建立时间
 }
 
-func NewApp() *App {
+func NewApp(rootDir string) *App {
 	// 生成数据文件路径, 放在 --home 目录下的 data 下
-	home := viper.GetString(cli.HomeFlag)
-	dbDir := path.Join(home, "data")
-
-	fmt.Println("path: ", home, dbDir)
+	dbDir := path.Join(rootDir, "data")
+	fmt.Println("mloab.db path: ", dbDir)
 
 	// 初始化数据库
 	db, err := dbm.NewCLevelDB("mloab", dbDir)  

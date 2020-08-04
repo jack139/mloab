@@ -108,8 +108,8 @@ func AddKV(db dbm.DB, key []byte, value []byte) int {
 
 func main() {
 	var db dbm.DB
-	name := "test_db"
-	dbDir := "./data"
+	name := "mloab"
+	dbDir := "n1/data"
 
 	// 初始化数据库
 	//db, err := dbm.NewGoLevelDB(name, dbDir) 
@@ -123,11 +123,11 @@ func main() {
 	//GenKeys(db, 10000000)
 	//fmt.Println("time elapsed: ", time.Now().Sub(start))
 
-	//fmt.Println("count=", CountKeys(db, 0))
+	fmt.Println("count=", CountKeys(db, 1))
 
 	//AddKV(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"), []byte("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"))
 
-	fmt.Println("key=", string(FindKey(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"))))
+	//fmt.Println("key=", string(FindKey(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"))))
 
 	fmt.Println("time elapsed: ", time.Now().Sub(start))
 }
