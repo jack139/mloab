@@ -29,8 +29,8 @@ package main
 */
 
 import (
-	"bytes"
 	//"encoding/json"
+	"encoding/binary"
 	"fmt"
 	"time"
 	"math/rand"
@@ -64,6 +64,11 @@ func GenKeys(db dbm.DB, n int) int {
 	return 0
 }
 
+func ByteArrayToInt64(b []byte) int64 {
+	return int64(binary.LittleEndian.Uint64(b))
+}
+
+
 func CountKeys(db dbm.DB, show int) int {
 	// 循环获取
 	itr, err := db.Iterator(nil, nil)
@@ -74,13 +79,19 @@ func CountKeys(db dbm.DB, show int) int {
 	count := 0
 	for ; itr.Valid(); itr.Next() {
 		if show==1 {
-			fmt.Println(string(itr.Key()), "=", string(itr.Value()))
+			if len(itr.Value())==8 {  // fileLink 长度为8的是 int64 转码的 height
+				fmt.Println(string(itr.Key()), "=", ByteArrayToInt64(itr.Value()))	
+			} else {
+				fmt.Println(string(itr.Key()), "=", string(itr.Value()))
+			}
+
 		}
 		count += 1
 	}
 
 	return count	
 }
+
 
 func SearchKeys(db dbm.DB, start, end []byte) int {
 	// 循环获取
@@ -152,9 +163,6 @@ func main() {
 	//fmt.Println("key=", string(FindKey(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"))))
 
 	fmt.Println("time elapsed: ", time.Now().Sub(start))
-
-	a := []byte{ []byte("abc"), []byte(":") }
-	fmt.Println(string(append(a, "123"...)))
 }
 
 

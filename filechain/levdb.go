@@ -7,6 +7,7 @@ package filechain
 
 import (
 	"encoding/json"
+	"encoding/binary"
 	"fmt"
 	"path"
 
@@ -31,16 +32,16 @@ type FileData struct {
 
 
 // 文件哈希表前缀
-func filePrefixKey(fileHash []byte) []byte {
-	return append(fileLinkPrefixKey, fileHash...)
+func filePrefixKey(fileHash string) []byte {
+	return append(fileLinkPrefixKey, []byte(fileHash)...)
 }
 
 
 // 用户文件表前缀
-func userPrefixKey(userId, fileHash []byte) []byte {
-	tmp := append(fileLinkPrefixKey, userId...)
+func userPrefixKey(userId, fileHash string) []byte {
+	tmp := append(userFilePrefixKey, []byte(userId)...)
 	tmp = append(tmp, ':')
-	return append(tmp, fileHash...)
+	return append(tmp, []byte(fileHash)...)
 }
 
 
@@ -84,4 +85,79 @@ func saveState(state State) {
 		panic(err)
 	}
 	state.db.Set(stateKey, stateBytes)
+}
+
+
+// 给点起始点，获取所有符合条件kv
+func SearchKeys(db dbm.DB, start, end []byte) int {
+	// 循环获取
+	itr, err := db.Iterator(start, end)
+	if err != nil {
+		panic(err)
+	}
+
+	count := 0
+	for ; itr.Valid(); itr.Next() {
+		fmt.Println(string(itr.Key()), "=", string(itr.Value()))
+		count += 1
+	}
+
+	return count
+}
+
+
+// 获取数据: 未找到返回 nil
+func FindKey(db dbm.DB, key []byte) []byte {
+	value2, err := db.Get(key)
+	if err != nil {
+		panic(err)
+	}
+
+	return value2
+}
+
+
+// 添加key 成功返回 nil
+func AddKV(db dbm.DB, key []byte, value []byte) error {
+	err := db.Set(key, value)
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
+// 检查文件hash是否已存在
+func FileHashExisted(db dbm.DB, fileHash string) bool {
+	if FindKey(db, []byte(fileHash))!=nil {
+		return true
+	}
+
+	return false
+}
+
+
+/*
+	int64 <---> []byte 
+
+	i := int64(-123456789)
+
+	fmt.Println(i)
+
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(i))
+
+	fmt.Println(b)
+
+	i = int64(binary.LittleEndian.Uint64(b))
+	fmt.Println(i)
+*/
+func Int64ToByteArray(a int64) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(a))
+	return b
+}
+
+func ByteArrayToInt64(b []byte) int64 {
+	return int64(binary.LittleEndian.Uint64(b))
 }

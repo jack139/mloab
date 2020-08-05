@@ -16,14 +16,24 @@ import (
 )
 
 
-// 检查文件hash是否已存在
-func FileHashExisted(fileHash string) bool {
-	return true
-}
+/*
+	type TxReq struct {
+		UserId      string
+		FileHash    string
+		OldFileHash string
+		FileName    string
+		ReaderId    string
+		Action      byte  
+	}
+*/
 
+/*
+curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"file_hash\":\"1234\",\"user_id\":\"abc\",\"action\":1}"'
+*/
 
 // 检查参数
 func (app *App) isValid(tx []byte) error {
+	db := app.state.db
 	var m TxReq
 
 	err := json.Unmarshal(tx, &m)
@@ -38,7 +48,7 @@ func (app *App) isValid(tx []byte) error {
 
 	switch m.Action {
 	case 0x01: // 新建文件
-		if FileHashExisted(m.FileHash) {
+		if FileHashExisted(db, m.FileHash) {
 			return fmt.Errorf("file_id existed")
 		}
 	case 0x02: // 浏览文件
@@ -49,10 +59,10 @@ func (app *App) isValid(tx []byte) error {
 		if len(m.OldFileHash)==0 {
 			return fmt.Errorf("old_file_id needed")
 		}
-		if !FileHashExisted(m.OldFileHash) {
+		if !FileHashExisted(db, m.OldFileHash) {
 			return fmt.Errorf("old_file_id not existed")
 		}
-		if FileHashExisted(m.FileHash) {
+		if FileHashExisted(db, m.FileHash) {
 			return fmt.Errorf("new file_id existed")
 		}
 	//case 0x04: // 删除文件
@@ -67,12 +77,15 @@ func (app *App) isValid(tx []byte) error {
 func (app *App) CheckTx(req types.RequestCheckTx) (rsp types.ResponseCheckTx) {
 	fmt.Println("CheckTx()")
 
+	fmt.Println(string(req.Tx))
+
 	err := app.isValid(req.Tx)
 	if err!=nil {
 		rsp.Log = err.Error()
 		rsp.Code = 1
+	} else {
+		rsp.GasWanted = 1
 	}
-	rsp.GasWanted = 1
 
 	return 
 }
