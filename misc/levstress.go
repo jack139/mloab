@@ -29,7 +29,7 @@ package main
 */
 
 import (
-	//"bytes"
+	"bytes"
 	//"encoding/json"
 	"fmt"
 	"time"
@@ -82,6 +82,22 @@ func CountKeys(db dbm.DB, show int) int {
 	return count	
 }
 
+func SearchKeys(db dbm.DB, start, end []byte) int {
+	// 循环获取
+	itr, err := db.Iterator(start, end)
+	if err != nil {
+		panic(err)
+	}
+
+	count := 0
+	for ; itr.Valid(); itr.Next() {
+		fmt.Println(string(itr.Key()), "=", string(itr.Value()))
+		count += 1
+	}
+
+	return count
+}
+
 func FindKey(db dbm.DB, key []byte) []byte {
 	// 查询数据
 	hasKey, err := db.Has(key)
@@ -120,14 +136,25 @@ func main() {
 
 	start := time.Now()
 
-	//GenKeys(db, 10000000)
+	//GenKeys(db, 10)
 	//fmt.Println("time elapsed: ", time.Now().Sub(start))
+
+	//AddKV(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"), []byte("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"))
+	//AddKV(db, []byte("abc|1234"), []byte("22222222"))
+	//AddKV(db, []byte("abc|5678"), []byte("22222222"))
+	//AddKV(db, []byte("abc|8979"), []byte("22222222"))
+	//AddKV(db, []byte("abc|测试"), []byte("哈哈哈"))
 
 	fmt.Println("count=", CountKeys(db, 1))
 
-	//AddKV(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"), []byte("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"))
+	fmt.Println("count=", SearchKeys(db, []byte("abc|"), []byte("abc|\xff"))) // key可以包含汉字
 
 	//fmt.Println("key=", string(FindKey(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"))))
 
 	fmt.Println("time elapsed: ", time.Now().Sub(start))
+
+	a := []byte{ []byte("abc"), []byte(":") }
+	fmt.Println(string(append(a, "123"...)))
 }
+
+

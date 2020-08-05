@@ -17,4 +17,5 @@ vendor/
 .idea
 
 mloab
+levstress
 *.sum
