@@ -22,6 +22,7 @@ import (
 var (
 	stateKey        = []byte("stateKey")
 	fileLinkPrefixKey = []byte("fileLink:")
+	blockLinkPrefixKey = []byte("blockLink:")
 	userFilePrefixKey = []byte("userFile:")
 
 	ProtocolVersion version.Protocol = 0x1

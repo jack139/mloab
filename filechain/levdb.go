@@ -7,8 +7,8 @@ package filechain
 
 import (
 	"encoding/json"
-	"encoding/binary"
 	"fmt"
+	"strconv"
 	"path"
 
 	dbm "github.com/tendermint/tm-db"
@@ -30,6 +30,11 @@ type FileData struct {
 	Modified    bool `json:"modified"` // 文件是否已修改
 }
 
+
+// 区块链表前缀
+func blockPrefixKey(height int64) []byte {
+	return append(blockLinkPrefixKey, Int64ToByteArray(height)...)
+}
 
 // 文件哈希表前缀
 func filePrefixKey(fileHash string) []byte {
@@ -129,7 +134,7 @@ func AddKV(db dbm.DB, key []byte, value []byte) error {
 
 // 检查文件hash是否已存在
 func FileHashExisted(db dbm.DB, fileHash string) bool {
-	if FindKey(db, []byte(fileHash))!=nil {
+	if FindKey(db, filePrefixKey(fileHash))!=nil {
 		return true
 	}
 
@@ -138,7 +143,7 @@ func FileHashExisted(db dbm.DB, fileHash string) bool {
 
 
 /*
-	int64 <---> []byte 
+	// int64 <---> []byte 
 
 	i := int64(-123456789)
 
@@ -152,12 +157,62 @@ func FileHashExisted(db dbm.DB, fileHash string) bool {
 	i = int64(binary.LittleEndian.Uint64(b))
 	fmt.Println(i)
 */
+
+
+/*
+	// string --> int64
+	int64, err := strconv.ParseInt(string, 10, 64)
+
+	// int64 --> string
+	string:=strconv.FormatInt(int64,10)
+*/
 func Int64ToByteArray(a int64) []byte {
-	b := make([]byte, 8)
-	binary.LittleEndian.PutUint64(b, uint64(a))
-	return b
+	return []byte(strconv.FormatInt(a,10))
 }
 
 func ByteArrayToInt64(b []byte) int64 {
-	return int64(binary.LittleEndian.Uint64(b))
+	a, err := strconv.ParseInt(string(b), 10, 64)
+	if err!=nil {
+		panic(err)
+	}
+	return a
+}
+
+
+// 生成file_data
+func NewFileData(db dbm.DB, userFileKey []byte, fileName string, modified bool) error {
+	fileData := FileData{
+		FileName: fileName,
+		Modified: modified,
+	}
+	fileBytes, err := json.Marshal(fileData)
+	if err != nil {
+		panic(err)
+	}
+
+	AddKV(db, userFileKey, fileBytes)
+
+	return nil
+}
+
+// 修改modified标志
+func ModifyFileData(db dbm.DB, oldUserFileKey []byte, modified bool) error {
+	oldFileByte := FindKey(db, oldUserFileKey)
+
+	var oldFileData FileData
+	err := json.Unmarshal(oldFileByte, &oldFileData)
+	if err != nil {
+		panic(err)
+	}
+
+	oldFileData.Modified = modified  // 修改标记
+
+	oldFileByte, err = json.Marshal(oldFileData)
+	if err != nil {
+		panic(err)
+	}
+
+	AddKV(db, oldUserFileKey, oldFileByte)
+
+	return nil
 }

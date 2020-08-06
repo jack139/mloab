@@ -28,7 +28,14 @@ import (
 */
 
 /*
+新建
 curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"file_hash\":\"1234\",\"user_id\":\"abc\",\"action\":1}"'
+
+浏览
+curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"file_hash\":\"1234\",\"user_id\":\"abc\",\"action\":2,\"reader_id\":\"xyz\"}"'
+
+修改
+curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"file_hash\":\"5678\",\"user_id\":\"abc\",\"action\":3,\"old_file_hash\":\"1234\"}"'
 */
 
 // 检查参数

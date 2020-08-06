@@ -79,12 +79,7 @@ func CountKeys(db dbm.DB, show int) int {
 	count := 0
 	for ; itr.Valid(); itr.Next() {
 		if show==1 {
-			if len(itr.Value())==8 {  // fileLink 长度为8的是 int64 转码的 height
-				fmt.Println(string(itr.Key()), "=", ByteArrayToInt64(itr.Value()))	
-			} else {
-				fmt.Println(string(itr.Key()), "=", string(itr.Value()))
-			}
-
+			fmt.Println(string(itr.Key()), "=", string(itr.Value()))
 		}
 		count += 1
 	}
@@ -109,23 +104,23 @@ func SearchKeys(db dbm.DB, start, end []byte) int {
 	return count
 }
 
+// 获取数据: 未找到返回 nil
 func FindKey(db dbm.DB, key []byte) []byte {
-	// 查询数据
-	hasKey, err := db.Has(key)
-	if err != nil {
-		panic(err)
-	}
-	if !hasKey {
-		return []byte("not found")
-	}
-
-	// 获取数据
 	value2, err := db.Get(key)
 	if err != nil {
 		panic(err)
 	}
 
 	return value2
+}
+
+// 检查文件hash是否已存在
+func FileHashExisted(db dbm.DB, fileHash string) bool {
+	if FindKey(db, []byte(fileHash))!=nil {
+		return true
+	}
+
+	return false
 }
 
 func AddKV(db dbm.DB, key []byte, value []byte) int {
@@ -158,9 +153,9 @@ func main() {
 
 	fmt.Println("count=", CountKeys(db, 1))
 
-	fmt.Println("count=", SearchKeys(db, []byte("abc|"), []byte("abc|\xff"))) // key可以包含汉字
+	//fmt.Println("count=", SearchKeys(db, []byte("abc|"), []byte("abc|\xff"))) // key可以包含汉字
 
-	//fmt.Println("key=", string(FindKey(db, []byte("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"))))
+	fmt.Println("FindKey: ", FileHashExisted(db, "1234"))
 
 	fmt.Println("time elapsed: ", time.Now().Sub(start))
 }

@@ -1,9 +1,10 @@
 ## leveldb 逻辑分表
 
-| 前缀      | key             | value     |
-| --------- | --------------- | --------- |
-| fileLink: | 文件hash        | 区块高度  |
-| userFile: | 用户id:文件hash | file_data |
+| 前缀       | key             | value     |
+| ---------- | --------------- | --------- |
+| blockLink: | 区块高度        | 区块高度  |
+| fileLink:  | 文件hash        | 区块高度  |
+| userFile:  | 用户id:文件hash | file_data |
 
 > 说明：
 
