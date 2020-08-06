@@ -18,6 +18,9 @@ build:
 lev:
 	CGO_ENABLED=$(CGO_ENABLED) go build $(BUILD_FLAGS) -tags '$(BUILD_TAGS)' misc/levstress.go
 
+test:
+	CGO_ENABLED=$(CGO_ENABLED) go build $(BUILD_FLAGS) misc/test.go
+
 clean:
 	@rm -f $(OUTPUT) levstress
 	@go clean

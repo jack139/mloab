@@ -11,7 +11,6 @@ import (
 	"fmt"
 
 	"github.com/tendermint/tendermint/abci/types"
-	//dbm "github.com/tendermint/tm-db"
 )
 
 

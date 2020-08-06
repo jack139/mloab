@@ -155,7 +155,7 @@ func main() {
 
 	//fmt.Println("count=", SearchKeys(db, []byte("abc|"), []byte("abc|\xff"))) // key可以包含汉字
 
-	fmt.Println("FindKey: ", FileHashExisted(db, "1234"))
+	//fmt.Println("FindKey: ", FileHashExisted(db, "fileLink:1234"))
 
 	fmt.Println("time elapsed: ", time.Now().Sub(start))
 }

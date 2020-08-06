@@ -15,21 +15,6 @@ import (
 )
 
 
-// 保存应用状态使用
-type State struct {
-	db      dbm.DB
-	Size    int64  `json:"size"`
-	Height  int64  `json:"height"`
-	AppHash []byte `json:"app_hash"`
-}
-
-
-// 文件信息 - 用户文件表使用
-type FileData struct {
-	FileName    string `json:"filename"` // 文件名，可为空
-	Modified    bool `json:"modified"` // 文件是否已修改
-}
-
 
 // 区块链表前缀
 func blockPrefixKey(height int64) []byte {
@@ -134,10 +119,9 @@ func AddKV(db dbm.DB, key []byte, value []byte) error {
 
 // 检查文件hash是否已存在
 func FileHashExisted(db dbm.DB, fileHash string) bool {
-	if FindKey(db, filePrefixKey(fileHash))!=nil {
+	if len(FindKey(db, filePrefixKey(fileHash)))>0 {
 		return true
 	}
-
 	return false
 }
 

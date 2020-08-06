@@ -9,10 +9,8 @@ package filechain
 import (
 	"encoding/json"
 	"fmt"
-	//"time"
 
 	"github.com/tendermint/tendermint/abci/types"
-	//dbm "github.com/tendermint/tm-db"
 )
 
 
