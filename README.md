@@ -120,7 +120,7 @@ query提交的json格式
 {
     "user_id": "abc", // 文件主的用户id，action==2时提供
     "file_hash": "1234",  // 文件hash，action==1时提供
-    "action": 1, // 0x01 查询文件历史, 0x02 查询用户的文件列表
+    "action": 1, // 1 查询文件历史, 2 查询用户的文件列表
 }
 ```
 
