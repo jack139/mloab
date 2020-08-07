@@ -1,5 +1,5 @@
 ## MLOAB - Multiple Linked-list On A Blockchain
-在区块链上构建链表，实现链上搜索
+在区块链上构建链表，实现链上搜索。（以文件操作日志为例）
 
 
 
@@ -83,28 +83,56 @@ tx提交的json格式
 
 ```json
 {
-	"user_id": "abc",  // 文件主的用户id
-	"file_hash": "...", // 文件hash
-	"old_file_hash": "...", // 旧文件的hash (如果 action==修改 需提供)
-	"filename": "file.txt", // 文件名，可为空
-	"reader_id": "def", // 浏览文件的用户id （如果 action==浏览 需提供）
-	"action": 1,  // 0x01 文件建立， 0x02 文件浏览， 0x03 文件修改， 0x04 文件删除
+	"uid": "abc",  // 文件主的用户id
+	"fhash": "...", // 文件hash
+	"ofhash": "...", // 旧文件的hash (如果 act==修改 需提供)
+	"fn": "file.txt", // 文件名，可为空
+	"rid": "def", // 浏览文件的用户id （如果 act==浏览 需提供）
+	"act": 1,  // 1 文件建立， 2 文件浏览， 3 文件修改， 4 文件删除
+    "nonce" : "...", // 随机字符串（如果能保证tx提交内容不重复，此字段可不用）
 }
 ```
 新建
 
 ```shell
-curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"file_hash\":\"1234\",\"user_id\":\"abc\",\"action\":1}"'
+curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"fhash\":\"1234\",\"uid\":\"abc\",\"act\":1}"'
 ```
 
 浏览
 
 ```shell
-curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"file_hash\":\"1234\",\"user_id\":\"abc\",\"action\":2,\"reader_id\":\"xyz\"}"'
+curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"fhash\":\"1234\",\"uid\":\"abc\",\"act\":2,\"rid\":\"xyz\",\"nonce\":123}"'
 ```
 
 修改
 
 ```shell
-curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"file_hash\":\"5678\",\"user_id\":\"abc\",\"action\":3,\"old_file_hash\":\"1234\"}"'
+curl -g 'http://localhost:26657/broadcast_tx_commit?tx="{\"fhash\":\"5678\",\"uid\":\"abc\",\"act\":3,\"ofhash\":\"1234\"}"'
 ```
+
+
+
+### 3. 链上数据检索
+
+query提交的json格式
+
+```json
+{
+    "user_id": "abc", // 文件主的用户id，action==2时提供
+    "file_hash": "1234",  // 文件hash，action==1时提供
+    "action": 1, // 0x01 查询文件历史, 0x02 查询用户的文件列表
+}
+```
+
+文件浏览/修改历史
+
+```shell
+curl -g 'http://localhost:26657/abci_query?data="{\"fhash\":\"5678\",\"act\":1}"'
+```
+
+用户文件列表
+
+```shell
+curl -g 'http://localhost:26657/abci_query?data="{\"uid\":\"abc\",\"act\":2}"'
+```
+

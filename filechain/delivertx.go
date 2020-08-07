@@ -8,7 +8,6 @@ package filechain
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/tendermint/tendermint/abci/types"
 )
@@ -25,7 +24,7 @@ import (
 	}
 */
 func (app *App) DeliverTx(req types.RequestDeliverTx) (rsp types.ResponseDeliverTx) {
-	fmt.Println("DeliverTx()")
+	app.logger.Info("DeliverTx()", "para", req.Tx)
 
 	db := app.state.db
 	var m TxReq
@@ -107,7 +106,7 @@ func (app *App) DeliverTx(req types.RequestDeliverTx) (rsp types.ResponseDeliver
 		rsp.Code = 2
 	}
 
-	fmt.Println("=================>", rsp.Log)
+	app.logger.Info("DeliverTx()", "action", rsp.Log)
 
 	return
 }

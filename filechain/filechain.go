@@ -11,15 +11,24 @@ package filechain
 import (
 	"encoding/binary"
 	"fmt"
+	"os"
 
 	"github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/version"
 )
 
 
 func NewApp(rootDir string) *App {
 	state := loadState(InitDB(rootDir))
-	return &App{state: state}
+	return &App{
+		state:  state,
+		logger: log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+	}
+}
+
+func (app *App) SetLogger(l log.Logger) {
+	app.logger = l
 }
 
 func (app *App) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
@@ -33,7 +42,7 @@ func (app *App) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
 }
 
 func (app *App) Commit() (rsp types.ResponseCommit) {
-	fmt.Println("Commit()")
+	app.logger.Info("Commit()")
 
 	// Using a db - just return the big endian size of the db
 	appHash := make([]byte, 8)

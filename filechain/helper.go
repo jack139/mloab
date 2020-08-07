@@ -1,16 +1,18 @@
 package filechain
 
 /*
-	cleveldb 相关操作
+	cleveldb 相关操作 及 一些辅助函数
 */
 
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"path"
 
+	"github.com/tendermint/tendermint/types"
+	rpctypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
+	rpc "github.com/tendermint/tendermint/rpc/core"
 	dbm "github.com/tendermint/tm-db"
 )
 
@@ -39,7 +41,7 @@ func userPrefixKey(userId, fileHash string) []byte {
 func InitDB(rootDir string) dbm.DB {
 	// 生成数据文件路径, 放在 --home 目录下的 data 下
 	dbDir := path.Join(rootDir, "data")
-	fmt.Println("mloab.db path: ", dbDir)
+	//fmt.Println("mloab.db path: ", dbDir)
 
 	// 初始化数据库
 	db, err := dbm.NewCLevelDB("mloab", dbDir)  
@@ -75,24 +77,6 @@ func saveState(state State) {
 		panic(err)
 	}
 	state.db.Set(stateKey, stateBytes)
-}
-
-
-// 给点起始点，获取所有符合条件kv
-func SearchKeys(db dbm.DB, start, end []byte) int {
-	// 循环获取
-	itr, err := db.Iterator(start, end)
-	if err != nil {
-		panic(err)
-	}
-
-	count := 0
-	for ; itr.Valid(); itr.Next() {
-		fmt.Println(string(itr.Key()), "=", string(itr.Value()))
-		count += 1
-	}
-
-	return count
 }
 
 
@@ -199,4 +183,18 @@ func ModifyFileData(db dbm.DB, oldUserFileKey []byte, modified bool) error {
 	AddKV(db, oldUserFileKey, oldFileByte)
 
 	return nil
+}
+
+
+// 获取指定高度的区块内容
+func GetBlock(height int64) *types.Block{
+	var ctx rpctypes.Context
+
+	// func Block(ctx *rpctypes.Context, heightPtr *int64) (*ctypes.ResultBlock, error) 
+	re, err := rpc.Block(&ctx, &height)
+	if err!=nil {
+		panic(err)
+	}
+
+	return re.Block		
 }

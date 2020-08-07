@@ -19,11 +19,13 @@ type TxReq struct {
 	FileName    string `json:"filename"`
 	ReaderId    string `json:"reader_id"` 
 	Action      byte   `json:"action"`
+	BoolT       bool   `json:"bool_test"`
 }
 
 
 func main() {
-	var m TxReq
+	var m, n TxReq
+	var txs []TxReq
 
 	tx := []byte(`
 		{
@@ -33,7 +35,8 @@ func main() {
 			"filename"      : "xxxx",
 			"reader_id"     : "xyz",
 			"action"        : 1,
-			"others"        : "not show"
+			"others"        : "not show",
+			"bool_test"     : true
 		}
 	`)
 	err := json.Unmarshal(tx, &m)
@@ -41,6 +44,9 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(m) 
+	txs = append(txs, m)
+	txs = append(txs, m)
+
+	fmt.Println(txs) 
 
 }
